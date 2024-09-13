@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { StripePayment } from '../stripe/stripe.entity';
+import { PaymentQuery } from 'src/payments/payments.entity';
 
 @Entity()
 export class User {
@@ -6,11 +8,17 @@ export class User {
   id: number;
 
   @Column()
-  name: string;
-
-  @Column({ unique: true })
   email: string;
 
   @Column()
+  name: string;
+
+  @Column()
   password: string;
+
+  @OneToMany(() => StripePayment, (stripe) => stripe.user)
+  payments: StripePayment[];
+
+  @OneToMany(() => PaymentQuery, (paymentQuery) => paymentQuery.user)
+  paymentQueries: PaymentQuery[];
 }
