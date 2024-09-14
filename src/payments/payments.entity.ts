@@ -9,8 +9,14 @@ export class PaymentQuery {
   @Column()
   queryType: string;
 
-  @Column('decimal')
-  value: number;
+  @Column()
+  queryName: string;
+
+  @Column()
+  queryCpf: string;
+
+  @Column()
+  amount: number;
 
   @ManyToOne(() => User, (user) => user.paymentQueries)
   user: User;

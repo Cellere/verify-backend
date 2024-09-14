@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
@@ -22,33 +26,48 @@ export class StripeService {
     });
   }
 
+  private async getUserByEmail(email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+    return user;
+  }
+
   async createPaymentIntent(amount: number): Promise<Stripe.PaymentIntent> {
-    return this.stripe.paymentIntents.create({
-      amount: amount * 100,
-      currency: 'usd',
-      payment_method_types: ['card'],
-    });
+    try {
+      return await this.stripe.paymentIntents.create({
+        amount: amount * 100,
+        currency: 'usd',
+        payment_method_types: ['card'],
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to create payment intent');
+    }
   }
 
   async savePaymentQuery({
-    email,
+    amount,
     queryType,
-    value,
+    queryCpf,
+    queryName,
+    email,
   }: {
-    email: string;
+    amount: number;
+    queryCpf: string;
     queryType: string;
-    value: number;
+    queryName: string;
+    email: string;
   }) {
-    const user = await this.userService.findOneByEmail(email);
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const user = await this.getUserByEmail(email);
 
-    const paymentIntent = await this.createPaymentIntent(value);
+    const paymentIntent = await this.createPaymentIntent(amount);
 
     const paymentQuery = this.paymentQueryRepository.create({
+      amount,
+      queryCpf,
       queryType,
-      value,
+      queryName,
       user,
     });
 
@@ -56,11 +75,11 @@ export class StripeService {
 
     const stripePayment = this.stripePaymentRepository.create({
       paymentIntentId: paymentIntent.id,
-      amount: value,
+      amount: amount,
       status: paymentIntent.status,
       user,
     });
 
-    await this.stripePaymentRepository.save(stripePayment);
+    return await this.stripePaymentRepository.save(stripePayment);
   }
 }

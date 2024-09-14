@@ -16,13 +16,17 @@ export class PaymentService {
   ) {}
 
   async savePaymentQuery({
-    email,
     queryType,
-    value,
+    amount,
+    queryCpf,
+    queryName,
+    email,
   }: {
-    email: string;
     queryType: string;
-    value: number;
+    amount: number;
+    queryCpf: string;
+    queryName: string;
+    email: string;
   }) {
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
@@ -30,9 +34,10 @@ export class PaymentService {
     }
 
     const paymentQuery = this.paymentQueryRepository.create({
+      amount,
       queryType,
-      value,
-      user,
+      queryCpf,
+      queryName,
     });
 
     await this.paymentQueryRepository.save(paymentQuery);
@@ -46,7 +51,6 @@ export class PaymentService {
 
     return this.paymentQueryRepository.find({
       where: { user },
-      relations: ['stripePayments'],
     });
   }
 
