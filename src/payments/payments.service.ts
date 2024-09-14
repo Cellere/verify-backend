@@ -21,12 +21,14 @@ export class PaymentService {
     queryCpf,
     queryName,
     email,
+    natural,
   }: {
     queryType: string;
     amount: number;
     queryCpf: string;
     queryName: string;
     email: string;
+    natural: string;
   }) {
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
@@ -38,6 +40,7 @@ export class PaymentService {
       queryType,
       queryCpf,
       queryName,
+      natural,
     });
 
     await this.paymentQueryRepository.save(paymentQuery);
