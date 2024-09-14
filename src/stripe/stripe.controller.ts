@@ -1,7 +1,17 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { StripeService } from '../stripe/stripe.service';
 import { PaymentService } from 'src/payments/payments.service';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
+import { User } from 'src/user/user.entity';
 
 @Controller('payments')
 export class StripeController {
@@ -22,7 +32,7 @@ export class StripeController {
     const paymentIntent = await this.stripeService.createPaymentIntent(amount);
 
     await this.stripeService.savePaymentQuery({
-      email,
+      email: email,
       queryType,
       amount,
       queryCpf,
@@ -33,10 +43,16 @@ export class StripeController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get('queries/:email')
-  async getPaymentQueriesByUser(@Param('email') email: string) {
-    const paymentQueries =
-      await this.paymentService.getPaymentQueriesByUser(email);
+  @Get('queries')
+  async getPaymentQueriesByUser(@Req() request: Request) {
+    const user = request.user as User;
+    if (!user) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    const paymentQueries = await this.paymentService.getPaymentQueriesByUser(
+      user.email,
+    );
     return paymentQueries;
   }
 }

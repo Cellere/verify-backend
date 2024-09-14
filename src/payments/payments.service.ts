@@ -43,14 +43,12 @@ export class PaymentService {
     await this.paymentQueryRepository.save(paymentQuery);
   }
 
-  async getPaymentQueriesByUser(email: string) {
-    const user = await this.userService.findOneByEmail(email);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
+  async getPaymentQueriesByUser(email: string): Promise<PaymentQuery[]> {
     return this.paymentQueryRepository.find({
-      where: { user },
+      where: {
+        user: { email: email },
+      },
+      relations: ['user'],
     });
   }
 
