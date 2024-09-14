@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from 'src/user/user.entity';
 
 @Entity()
@@ -17,4 +23,7 @@ export class StripePayment {
 
   @ManyToOne(() => User, (user) => user.payments)
   user: User;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 }
