@@ -15,7 +15,7 @@ export class StripePayment {
   @Column()
   paymentIntentId: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
   @Column()

@@ -19,9 +19,9 @@ export class PaymentQuery {
   queryName: string;
 
   @Column()
-  queryCpf: string;
+  queryCpfOrCpnj: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
   @Column()

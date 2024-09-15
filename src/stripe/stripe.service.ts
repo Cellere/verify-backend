@@ -49,14 +49,16 @@ export class StripeService {
   async savePaymentQuery({
     amount,
     queryType,
-    queryCpf,
+    queryCpfOrCpnj,
     queryName,
     email,
+    natural,
   }: {
     amount: number;
-    queryCpf: string;
+    queryCpfOrCpnj: string;
     queryType: string;
     queryName: string;
+    natural: string;
     email: string;
   }) {
     const user = await this.getUserByEmail(email);
@@ -64,18 +66,19 @@ export class StripeService {
     const paymentIntent = await this.createPaymentIntent(amount);
 
     const paymentQuery = this.paymentQueryRepository.create({
-      amount,
-      queryCpf,
+      amount: parseFloat(amount.toFixed(2)),
+      queryCpfOrCpnj,
       queryType,
       queryName,
       user,
+      natural,
     });
 
     await this.paymentQueryRepository.save(paymentQuery);
 
     const stripePayment = this.stripePaymentRepository.create({
       paymentIntentId: paymentIntent.id,
-      amount: amount,
+      amount: parseFloat(amount.toFixed(2)),
       status: paymentIntent.status,
       user,
     });

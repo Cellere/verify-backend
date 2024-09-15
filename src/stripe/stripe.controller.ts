@@ -27,7 +27,8 @@ export class StripeController {
     @Body('email') email: string,
     @Body('queryType') queryType: string,
     @Body('queryName') queryName: string,
-    @Body('queryCpf') queryCpf: string,
+    @Body('queryCpfOrCpnj') queryCpfOrCpnj: string,
+    @Body('natural') natural: string,
   ) {
     const paymentIntent = await this.stripeService.createPaymentIntent(amount);
 
@@ -35,8 +36,9 @@ export class StripeController {
       email: email,
       queryType,
       amount,
-      queryCpf,
+      queryCpfOrCpnj,
       queryName,
+      natural,
     });
 
     return { clientSecret: paymentIntent.client_secret };

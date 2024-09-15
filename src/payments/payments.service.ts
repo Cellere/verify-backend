@@ -18,14 +18,14 @@ export class PaymentService {
   async savePaymentQuery({
     queryType,
     amount,
-    queryCpf,
+    queryCpfOrCpnj,
     queryName,
     email,
     natural,
   }: {
     queryType: string;
     amount: number;
-    queryCpf: string;
+    queryCpfOrCpnj: string;
     queryName: string;
     email: string;
     natural: string;
@@ -36,9 +36,9 @@ export class PaymentService {
     }
 
     const paymentQuery = this.paymentQueryRepository.create({
-      amount,
+      amount: parseFloat(amount.toFixed(2)),
       queryType,
-      queryCpf,
+      queryCpfOrCpnj,
       queryName,
       natural,
     });
