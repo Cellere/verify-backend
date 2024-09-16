@@ -110,7 +110,9 @@ export class StripeController {
 
     return paymentQueries.map((query) => ({
       ...query,
-      pdfUrl: `/uploads/pdf/${path.basename(query.pdfPath)}`,
+      pdfUrl: query.pdfPath
+        ? `/uploads/pdf/${path.basename(query.pdfPath)}`
+        : null,
     }));
   }
 }
