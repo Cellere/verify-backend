@@ -24,6 +24,9 @@ export class PaymentQuery {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
+  @Column({ nullable: true })
+  pdfPath: string;
+
   @Column()
   natural: string;
 

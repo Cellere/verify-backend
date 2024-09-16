@@ -41,9 +41,10 @@ export class PaymentService {
       queryCpfOrCpnj,
       queryName,
       natural,
+      user,
     });
 
-    await this.paymentQueryRepository.save(paymentQuery);
+    return await this.paymentQueryRepository.save(paymentQuery);
   }
 
   async getPaymentQueriesByUser(email: string): Promise<PaymentQuery[]> {
@@ -55,14 +56,23 @@ export class PaymentService {
     });
   }
 
-  async getStripePaymentsByUser(email: string) {
-    const user = await this.userService.findOneByEmail(email);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    return this.stripePaymentRepository.find({
-      where: { user },
+  async getPaymentByIdAndUser(
+    paymentId: number,
+    userId: number,
+  ): Promise<PaymentQuery | null> {
+    return this.paymentQueryRepository.findOne({
+      where: { id: paymentId, user: { id: userId } },
     });
+  }
+
+  async attachPdfToPayment(paymentId: number, pdfPath: string): Promise<void> {
+    const payment = await this.paymentQueryRepository.findOne({
+      where: { id: paymentId },
+    });
+    if (!payment) {
+      throw new Error('Payment not found');
+    }
+    payment.pdfPath = pdfPath;
+    await this.paymentQueryRepository.save(payment);
   }
 }

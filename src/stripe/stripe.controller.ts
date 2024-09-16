@@ -5,13 +5,18 @@ import {
   Post,
   Req,
   UnauthorizedException,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { StripeService } from '../stripe/stripe.service';
 import { PaymentService } from 'src/payments/payments.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { User } from 'src/user/user.entity';
+import { diskStorage } from 'multer';
+import * as path from 'path';
 
 @Controller('payments')
 export class StripeController {
@@ -32,8 +37,8 @@ export class StripeController {
   ) {
     const paymentIntent = await this.stripeService.createPaymentIntent(amount);
 
-    await this.stripeService.savePaymentQuery({
-      email: email,
+    const savedPayment = await this.stripeService.savePaymentQuery({
+      email,
       queryType,
       amount,
       queryCpfOrCpnj,
@@ -41,7 +46,54 @@ export class StripeController {
       natural,
     });
 
-    return { clientSecret: paymentIntent.client_secret };
+    return {
+      clientSecret: paymentIntent.client_secret,
+      paymentId: savedPayment.id,
+    };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('upload-pdf')
+  @UseInterceptors(
+    FileInterceptor('pdf', {
+      storage: diskStorage({
+        destination: './uploads/pdf',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = path.extname(file.originalname);
+          cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+        },
+      }),
+    }),
+  )
+  async uploadPdf(
+    @Body('paymentId') paymentId: number,
+    @UploadedFile() pdf: Express.Multer.File,
+    @Req() req: Request,
+  ) {
+    const user = req.user as User;
+    if (!user) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+
+    if (!pdf) {
+      throw new Error('No PDF file uploaded');
+    }
+
+    const payment = await this.paymentService.getPaymentByIdAndUser(
+      paymentId,
+      user.id,
+    );
+    if (!payment) {
+      throw new UnauthorizedException('Payment not found or not authorized');
+    }
+
+    const pdfPath = path.resolve(pdf.path);
+
+    await this.paymentService.attachPdfToPayment(paymentId, pdfPath);
+
+    return { message: 'PDF uploaded successfully', pdfPath };
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -55,6 +107,10 @@ export class StripeController {
     const paymentQueries = await this.paymentService.getPaymentQueriesByUser(
       user.email,
     );
-    return paymentQueries;
+
+    return paymentQueries.map((query) => ({
+      ...query,
+      pdfUrl: `/uploads/pdf/${path.basename(query.pdfPath)}`,
+    }));
   }
 }
