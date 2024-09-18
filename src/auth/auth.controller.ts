@@ -20,4 +20,12 @@ export class AuthController {
     );
     return this.authService.login(user);
   }
+
+  @Post('verify')
+  async verifyUserCode(
+    @Body('email') email: string,
+    @Body('code') code: string,
+  ) {
+    return this.authService.verifyCode(email, code);
+  }
 }

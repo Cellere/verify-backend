@@ -9,12 +9,15 @@ import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User } from 'src/user/user.entity';
+import { randomBytes } from 'crypto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -47,6 +50,24 @@ export class AuthService {
     }
   }
 
+  async verifyCode(email: string, code: string) {
+    const user = await this.userService.findOneByEmail(email);
+
+    console.log('verificationCode', user.verificationCode);
+    console.log('code', code);
+
+    if (!user || user.verificationCode !== code) {
+      throw new BadRequestException('Código de verificação inválido');
+    }
+
+    user.isVerified = true;
+    await this.userService.update(user);
+
+    return {
+      message: 'Verificação bem-sucedida!',
+    };
+  }
+
   async register(createUserDto: CreateUserDto) {
     try {
       const existingUser = await this.userService.findOneByEmail(
@@ -56,7 +77,28 @@ export class AuthService {
         throw new BadRequestException('O email já está em uso');
       }
 
-      return await this.userService.register(createUserDto);
+      const verificationCode = randomBytes(3).toString('hex');
+
+      await this.userService.register({
+        ...createUserDto,
+        verificationCode,
+      });
+
+      const emailSent = await this.mailService.sendVerificationEmail(
+        createUserDto.email,
+        verificationCode,
+      );
+
+      if (!emailSent) {
+        throw new InternalServerErrorException(
+          'Falha ao enviar o email de verificação',
+        );
+      }
+
+      return {
+        message:
+          'Usuário registrado com sucesso. Verifique seu email para o código de verificação.',
+      };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;

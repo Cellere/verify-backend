@@ -11,6 +11,12 @@ export class User {
   email: string;
 
   @Column()
+  verificationCode: string;
+
+  @Column()
+  isVerified: boolean;
+
+  @Column()
   name: string;
 
   @Column()
