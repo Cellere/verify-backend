@@ -6,6 +6,7 @@ import { UserModule } from '../user/user.module';
 import { StripeController } from 'src/stripe/stripe.controller';
 import { StripePayment } from 'src/stripe/stripe.entity';
 import { StripeService } from 'src/stripe/stripe.service';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { StripeService } from 'src/stripe/stripe.service';
     UserModule,
   ],
   controllers: [StripeController],
-  providers: [StripeService, PaymentService],
-  exports: [PaymentService],
+  providers: [StripeService, PaymentService, MailService],
+  exports: [PaymentService, MailService],
 })
 export class PaymentModule {}

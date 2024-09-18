@@ -17,12 +17,14 @@ import { Request } from 'express';
 import { User } from 'src/user/user.entity';
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { MailService } from 'src/mail/mail.service';
 
 @Controller('payments')
 export class StripeController {
   constructor(
     private readonly stripeService: StripeService,
     private readonly paymentService: PaymentService,
+    private readonly mailService: MailService,
   ) {}
 
   @UseGuards(AuthGuard('jwt'))
@@ -77,6 +79,8 @@ export class StripeController {
       throw new UnauthorizedException('User not authenticated');
     }
 
+    console.log('user', user);
+
     if (!pdf) {
       throw new Error('No PDF file uploaded');
     }
@@ -85,6 +89,7 @@ export class StripeController {
       paymentId,
       user.id,
     );
+    console.log('payment', payment);
     if (!payment) {
       throw new UnauthorizedException('Payment not found or not authorized');
     }
@@ -92,8 +97,9 @@ export class StripeController {
     const pdfPath = path.resolve(pdf.path);
 
     await this.paymentService.attachPdfToPayment(paymentId, pdfPath);
+    await this.mailService.sendPaymentPdf(user.email, pdfPath);
 
-    return { message: 'PDF uploaded successfully', pdfPath };
+    return { message: 'PDF uploaded and email sent successfully', pdfPath };
   }
 
   @UseGuards(AuthGuard('jwt'))
