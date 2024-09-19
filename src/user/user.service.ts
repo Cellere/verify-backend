@@ -13,13 +13,14 @@ export class UserService {
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<User> {
-    const { name, email, password } = createUserDto;
+    const { name, email, password, verificationCode } = createUserDto;
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.userRepository.create({
       name,
       email,
       password: hashedPassword,
+      verificationCode,
     });
 
     return this.userRepository.save(user);

@@ -7,13 +7,13 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   verificationCode: string;
 
-  @Column()
+  @Column({ default: false })
   isVerified: boolean;
 
   @Column()

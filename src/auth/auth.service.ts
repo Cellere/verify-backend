@@ -52,11 +52,16 @@ export class AuthService {
 
   async verifyCode(email: string, code: string) {
     const user = await this.userService.findOneByEmail(email);
+    console.log('user', user);
 
-    console.log('verificationCode', user.verificationCode);
+    if (!user) {
+      throw new BadRequestException('Usuário não encontrado');
+    }
+
+    console.log('verificationCode1', user.verificationCode);
     console.log('code', code);
 
-    if (!user || user.verificationCode !== code) {
+    if (user.verificationCode !== code) {
       throw new BadRequestException('Código de verificação inválido');
     }
 
@@ -79,6 +84,8 @@ export class AuthService {
 
       const verificationCode = randomBytes(3).toString('hex');
 
+      console.log('verificationCode', verificationCode);
+
       await this.userService.register({
         ...createUserDto,
         verificationCode,
@@ -100,6 +107,7 @@ export class AuthService {
           'Usuário registrado com sucesso. Verifique seu email para o código de verificação.',
       };
     } catch (error) {
+      console.error('Error during registration:', error);
       if (error instanceof BadRequestException) {
         throw error;
       }
