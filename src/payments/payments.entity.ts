@@ -7,13 +7,23 @@ import {
 } from 'typeorm';
 import { User } from '../user/user.entity';
 
+export enum QueryType {
+  Simples = 'Consulta Simples',
+  Intermediaria = 'Consulta Intermediária',
+  Avancada = 'Consulta Avançada',
+  Automotiva = 'Consulta Automotiva',
+}
+
 @Entity()
 export class PaymentQuery {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  queryType: string;
+  @Column({
+    type: 'enum',
+    enum: QueryType,
+  })
+  queryType: QueryType;
 
   @Column()
   queryName: string;

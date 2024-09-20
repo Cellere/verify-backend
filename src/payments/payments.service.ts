@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
-import { PaymentQuery } from './payments.entity';
+import { PaymentQuery, QueryType } from './payments.entity';
 import { StripePayment } from 'src/stripe/stripe.entity';
 
 @Injectable()
@@ -23,10 +23,10 @@ export class PaymentService {
     email,
     natural,
   }: {
-    queryType: string;
+    queryType: QueryType;
     amount: number;
     queryCpfOrCpnj: string;
-    queryName: string;
+    queryName: QueryType;
     email: string;
     natural: string;
   }) {

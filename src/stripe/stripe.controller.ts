@@ -73,13 +73,12 @@ export class StripeController {
     @Body('paymentId') paymentId: number,
     @UploadedFile() pdf: Express.Multer.File,
     @Req() req: Request,
+    @Body('queryType') queryType: string,
   ) {
     const user = req.user as User;
     if (!user) {
       throw new UnauthorizedException('User not authenticated');
     }
-
-    console.log('user', user);
 
     if (!pdf) {
       throw new Error('No PDF file uploaded');
@@ -89,7 +88,6 @@ export class StripeController {
       paymentId,
       user.id,
     );
-    console.log('payment', payment);
     if (!payment) {
       throw new UnauthorizedException('Payment not found or not authorized');
     }
@@ -97,7 +95,7 @@ export class StripeController {
     const pdfPath = path.resolve(pdf.path);
 
     await this.paymentService.attachPdfToPayment(paymentId, pdfPath);
-    await this.mailService.sendPaymentPdf(user.email, pdfPath);
+    await this.mailService.sendPaymentPdf(user.email, pdfPath, queryType);
 
     return { message: 'PDF uploaded and email sent successfully', pdfPath };
   }
