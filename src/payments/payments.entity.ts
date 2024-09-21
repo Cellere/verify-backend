@@ -20,12 +20,11 @@ export class PaymentQuery {
   id: number;
 
   @Column({
-    type: 'enum',
-    enum: QueryType,
+    type: 'varchar',
   })
   queryType: QueryType;
 
-  @Column()
+  @Column({ nullable: true })
   queryName: string;
 
   @Column()

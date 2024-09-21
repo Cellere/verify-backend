@@ -18,6 +18,7 @@ import { User } from 'src/user/user.entity';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { MailService } from 'src/mail/mail.service';
+import { QueryType } from 'src/payments/payments.entity';
 
 @Controller('payments')
 export class StripeController {
@@ -32,7 +33,7 @@ export class StripeController {
   async createPaymentIntent(
     @Body('amount') amount: number,
     @Body('email') email: string,
-    @Body('queryType') queryType: string,
+    @Body('queryType') queryType: QueryType,
     @Body('queryName') queryName: string,
     @Body('queryCpfOrCpnj') queryCpfOrCpnj: string,
     @Body('natural') natural: string,
@@ -73,7 +74,7 @@ export class StripeController {
     @Body('paymentId') paymentId: number,
     @UploadedFile() pdf: Express.Multer.File,
     @Req() req: Request,
-    @Body('queryType') queryType: string,
+    @Body('queryType') queryType: QueryType,
   ) {
     const user = req.user as User;
     if (!user) {

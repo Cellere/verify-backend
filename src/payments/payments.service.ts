@@ -11,7 +11,6 @@ export class PaymentService {
     @InjectRepository(PaymentQuery)
     private readonly paymentQueryRepository: Repository<PaymentQuery>,
     @InjectRepository(StripePayment)
-    private readonly stripePaymentRepository: Repository<StripePayment>,
     private readonly userService: UserService,
   ) {}
 
@@ -26,7 +25,7 @@ export class PaymentService {
     queryType: QueryType;
     amount: number;
     queryCpfOrCpnj: string;
-    queryName: QueryType;
+    queryName?: string;
     email: string;
     natural: string;
   }) {
