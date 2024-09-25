@@ -27,7 +27,6 @@ export class MailService {
       subject: `Seu PDF de ${queryType} - Trusty`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <h2 style="color: #333;">Comprovante de Pagamento</h2>
           <p>Olá,</p>
           <p>Conforme solicitado, estamos enviando o PDF de sua ${queryType}.</p>
           <p>Caso tenha dúvidas ou precise de mais informações, não hesite em entrar em contato com a nossa equipe de suporte.</p>
