@@ -24,7 +24,7 @@ export class MailService {
     await this.transporter.sendMail({
       from: '"Verify" <felipenobrega2012@gmail.com>',
       to: email,
-      subject: `Seu PDF de ${queryType} - Trusty`,
+      subject: `Seu PDF de ${queryType} - Verify`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <p>Olá,</p>
@@ -32,7 +32,7 @@ export class MailService {
           <p>Caso tenha dúvidas ou precise de mais informações, não hesite em entrar em contato com a nossa equipe de suporte.</p>
           <br>
           <p>Atenciosamente,</p>
-          <p><strong>Equipe Trusty</strong></p>
+          <p><strong>Equipe Verify</strong></p>
           <p style="font-size: 12px; color: #999;">Este é um email automático, por favor, não responda.</p>
         </div>
       `,
