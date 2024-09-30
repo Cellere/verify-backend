@@ -106,7 +106,7 @@ export class StripeController {
   async getPaymentQueriesByUser(@Req() request: Request) {
     const user = request.user as User;
     if (!user) {
-      throw new UnauthorizedException('User not authenticated');
+      throw new UnauthorizedException('User não está autenticado');
     }
 
     const paymentQueries = await this.paymentService.getPaymentQueriesByUser(
